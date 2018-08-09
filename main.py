@@ -5,6 +5,7 @@ import pandas as pd
 from time import time
 from IPython.display import display # Permite a utilização da função display() para DataFrames.
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.cross_validation import train_test_split
 
 # Carregando os dados do Censo
 data = pd.read_csv("census.csv")
@@ -47,10 +48,19 @@ display(features_log_minmax_transform.head(n=5))
 features_final = pd.get_dummies(features_log_minmax_transform)
 
 # TODO: Faça o encode da coluna 'income_raw' para valores numéricos
-income = features_final.loc[income_raw == ">50K"]
+income = income_raw.map(lambda x : x == ">50K" )
 
 # Exiba o número de colunas depois do one-hot encoding
 encoded = list(features_final.columns)
-print "{} total features after one-hot encoding.".format(len(encoded))
+#print "{} total features after one-hot encoding.".format(len(encoded))
+#print encoded
 
-print encoded
+# Dividir os 'atributos' e 'income' entre conjuntos de treinamento e de testes.
+X_train, X_test, y_train, y_test = train_test_split(features_final, 
+                                                    income, 
+                                                    test_size = 0.2, 
+                                                    random_state = 0)
+
+# Show the results of the split
+print "Training set has {} samples.".format(X_train.shape[0])
+print "Testing set has {} samples.".format(X_test.shape[0])
