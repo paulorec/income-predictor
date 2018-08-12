@@ -47,7 +47,7 @@ features_log_minmax_transform[numerical] = scaler.fit_transform(features_log_tra
 display(features_log_minmax_transform.head(n=5))
 features_final = pd.get_dummies(features_log_minmax_transform)
 
-# TODO: Faça o encode da coluna 'income_raw' para valores numéricos
+# TODO: encode da coluna 'income_raw' para valores numéricos
 income = income_raw.map(lambda x : x == ">50K" )
 
 # Exiba o número de colunas depois do one-hot encoding
@@ -64,3 +64,23 @@ X_train, X_test, y_train, y_test = train_test_split(features_final,
 # Show the results of the split
 print "Training set has {} samples.".format(X_train.shape[0])
 print "Testing set has {} samples.".format(X_test.shape[0])
+
+TP = np.sum(income) # Contando pois este é o caso "naive". Note que 'income' são os dados 'income_raw' convertidos para valores numéricos durante o passo de pré-processamento de dados.
+
+FP = income.count() - TP # Específico para o caso naive
+
+TN = 0 # Sem predições negativas para o caso naive
+FN = 0 # Sem predições negativas para o caso naive
+
+beta=0.5
+
+# TODO: Calcular accuracy, precision e recall
+accuracy = TP / np.sum(income)
+recall = TP / (TP + FP)
+precision = TP / (TP + FN)
+
+# TODO: Calcular o F-score utilizando a fórmula acima para o beta = 0.5 e os valores corretos de precision e recall.
+fscore = ( 1 + pow(beta,2)) * ((precision*recall) / (pow(beta,2) * precision)  + recall)
+
+# Exibir os resultados 
+print "Naive Predictor: [Accuracy score: {:.4f}, F-score: {:.4f}]".format(accuracy, fscore)
