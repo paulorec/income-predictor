@@ -8,8 +8,9 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import fbeta_score
 from sklearn.metrics import accuracy_score
-
+from sklearn import tree
 from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
 
 # Carregando os dados do Censo
 data = pd.read_csv("census.csv")
@@ -140,3 +141,28 @@ def train_predict(learner, sample_size, X_train, y_train, X_test, y_test):
     return results
 
 train_predict(GaussianNB(), 300, X_train, y_train, X_test, y_test)
+
+# TODO: Inicialize os três modelos
+clf_A = GaussianNB()
+clf_B = tree.DecisionTreeClassifier()
+clf_C = KNeighborsClassifier(n_neighbors=3)
+
+# TODO: Calcule o número de amostras para 1%, 10%, e 100% dos dados de treinamento
+# HINT: samples_100 é todo o conjunto de treinamento e.x.: len(y_train)
+# HINT: samples_10 é 10% de samples_100
+# HINT: samples_1 é 1% de samples_100
+samples_100 = len(y_train)
+samples_10 = len(y_train) * 0.1
+samples_1 = len(y_train) * 0.01
+
+# Colete os resultados dos algoritmos de aprendizado
+results = {}
+for clf in [clf_A, clf_B, clf_C]:
+    clf_name = clf.__class__.__name__
+    results[clf_name] = {}
+    for i, samples in enumerate([samples_1, samples_10, samples_100]):
+        results[clf_name][i] = \
+        train_predict(clf, samples, X_train, y_train, X_test, y_test)
+
+# Run metrics visualization for the three supervised learning models chosen
+vs.evaluate(results, accuracy, fscore)
