@@ -6,11 +6,12 @@ from time import time
 from IPython.display import display # Permite a utilização da função display() para DataFrames.
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.cross_validation import train_test_split
-from sklearn.metrics import fbeta_score
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import fbeta_score, accuracy_score, make_scorer
+from sklearn.model_selection import GridSearchCV
 from sklearn import tree
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn import svm
 
 # Carregando os dados do Censo
 data = pd.read_csv("census.csv")
@@ -143,7 +144,7 @@ def train_predict(learner, sample_size, X_train, y_train, X_test, y_test):
 train_predict(GaussianNB(), 300, X_train, y_train, X_test, y_test)
 
 # TODO: Inicialize os três modelos
-clf_A = GaussianNB()
+clf_A = svm.SVC()
 clf_B = tree.DecisionTreeClassifier()
 clf_C = KNeighborsClassifier(n_neighbors=3)
 
@@ -157,7 +158,7 @@ samples_1 = len(y_train) * 0.01
 
 # Colete os resultados dos algoritmos de aprendizado
 results = {}
-for clf in [clf_A, clf_B, clf_C]:
+for clf in [clf_B]:
     clf_name = clf.__class__.__name__
     results[clf_name] = {}
     for i, samples in enumerate([samples_1, samples_10, samples_100]):
@@ -165,4 +166,35 @@ for clf in [clf_A, clf_B, clf_C]:
         train_predict(clf, samples, X_train, y_train, X_test, y_test)
 
 # Run metrics visualization for the three supervised learning models chosen
-vs.evaluate(results, accuracy, fscore)
+# TODO: Importar 'GridSearchCV', 'make_scorer', e qualquer biblioteca necessária
+
+# TODO: Inicializar o classificador
+clf = svm.SVC()
+
+# TODO: Criar a lista de parâmetros que você quer otimizar, utilizando um dicionário, caso necessário.
+# HINT: parameters = {'parameter_1': [value1, value2], 'parameter_2': [value1, value2]}
+parameters = {'C': [0.1, 0.5, 1], 'kernel': ['rbf', 'linear', 'poly']}
+
+# TODO: Criar um objeto fbeta_score utilizando make_scorer()
+scorer = make_scorer(fbeta_score, beta=2)
+
+# TODO: Realizar uma busca grid no classificador utilizando o 'scorer' como o método de score no GridSearchCV() 
+grid_obj = GridSearchCV(clf,parameters,scoring=scorer)
+
+# TODO: Adequar o objeto da busca grid como os dados para treinamento e encontrar os parâmetros ótimos utilizando fit() 
+grid_fit = grid_obj.fit(X_train, y_train)
+
+# Recuperar o estimador
+best_clf = grid_fit.best_estimator_
+
+# Realizar predições utilizando o modelo não otimizado e modelar
+predictions = (clf.fit(X_train, y_train)).predict(X_test)
+best_predictions = best_clf.predict(X_test)
+
+# Reportar os scores de antes e de depois
+print "Unoptimized model\n------"
+print "Accuracy score on testing data: {:.4f}".format(accuracy_score(y_test, predictions))
+print "F-score on testing data: {:.4f}".format(fbeta_score(y_test, predictions, beta = 0.5))
+print "\nOptimized Model\n------"
+print "Final accuracy score on the testing data: {:.4f}".format(accuracy_score(y_test, best_predictions))
+print "Final F-score on the testing data: {:.4f}".format(fbeta_score(y_test, best_predictions, beta = 0.5))
