@@ -27,7 +27,7 @@ n_greater_50k = len(filter(lambda x : x == '>50K',data.income))
 n_at_most_50k = len(filter(lambda x : x == '<=50K' ,data.income))
 
 # O percentual de indivíduos com remuneração anual superior à $50,000
-greater_percent = (n_greater_50k*100) /n_records
+greater_percent = (n_greater_50k) /n_records * 100
 
 # Exibindo os resultados
 print "Total number of records: {}".format(n_records)
